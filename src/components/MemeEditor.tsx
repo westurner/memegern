@@ -23,6 +23,23 @@ export default function MemeEditor() {
   const [templateKey, setTemplateKey] = useState<TemplateKey>('philosoraptor');
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
+  
+  const [topSettings, setTopSettings] = useState({
+    color: '#ffffff',
+    bgColor: '#000000',
+    font: 'Impact, Arial, sans-serif',
+    fontSize: 40,
+    shadow: false
+  });
+  
+  const [bottomSettings, setBottomSettings] = useState({
+    color: '#ffffff',
+    bgColor: '#000000',
+    font: 'Impact, Arial, sans-serif',
+    fontSize: 40,
+    shadow: false
+  });
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -45,32 +62,46 @@ export default function MemeEditor() {
       // Draw background
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       
-      // Draw text
-      ctx.fillStyle = 'white';
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 4;
-      ctx.textAlign = 'center';
-      ctx.font = '40px Impact, Arial, sans-serif';
-      ctx.lineJoin = 'round'; // makes thick strokes look better around text
+      const drawSettingsText = (text: string, y: number, settings: typeof topSettings) => {
+        if (!text) return;
+        ctx.fillStyle = settings.color;
+        ctx.strokeStyle = settings.bgColor;
+        ctx.lineWidth = 4;
+        ctx.textAlign = 'center';
+        ctx.font = `${settings.fontSize}px ${settings.font}`;
+        ctx.lineJoin = 'round'; // makes thick strokes look better around text
 
-      // Top text
-      if (topText) {
-        ctx.strokeText(topText.toUpperCase(), canvas.width / 2, 50);
-        ctx.fillText(topText.toUpperCase(), canvas.width / 2, 50);
-      }
+        if (settings.shadow) {
+          ctx.shadowColor = 'rgba(0,0,0,0.8)';
+          ctx.shadowBlur = 5;
+          ctx.shadowOffsetX = 3;
+          ctx.shadowOffsetY = 3;
+        } else {
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+        }
 
-      // Bottom text
-      if (bottomText) {
-        ctx.strokeText(bottomText.toUpperCase(), canvas.width / 2, canvas.height - 20);
-        ctx.fillText(bottomText.toUpperCase(), canvas.width / 2, canvas.height - 20);
-      }
+        ctx.strokeText(text.toUpperCase(), canvas.width / 2, y);
+        ctx.fillText(text.toUpperCase(), canvas.width / 2, y);
+        
+        // Reset shadow for next draw
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+      };
+
+      drawSettingsText(topText, 50, topSettings);
+      drawSettingsText(bottomText, canvas.height - 20, bottomSettings);
     };
     image.src = template.src;
     /* v8 ignore next 3 */
     if (process.env.NODE_ENV === 'test' && typeof image.onload === 'function') {
       image.onload(new Event('load') as any);
     }
-  }, [templateKey, topText, bottomText]);
+  }, [templateKey, topText, bottomText, topSettings, bottomSettings]);
 
   const handleDownload = async () => {
     const canvas = canvasRef.current;
@@ -126,9 +157,26 @@ export default function MemeEditor() {
             type="text" 
             value={topText} 
             onChange={(e) => setTopText(e.target.value)}
-            className="w-full border rounded-md p-2 bg-transparent"
+            className="w-full border rounded-md p-2 bg-transparent mb-2"
             placeholder="TOP TEXT"
           />
+          <div className="flex gap-2 text-xs flex-wrap items-center">
+            <input type="color" value={topSettings.color} onChange={e => setTopSettings({...topSettings, color: e.target.value})} title="Foreground Color" />
+            <input type="color" value={topSettings.bgColor} onChange={e => setTopSettings({...topSettings, bgColor: e.target.value})} title="Background Color" />
+            <select value={topSettings.font} onChange={e => setTopSettings({...topSettings, font: e.target.value})} className="border rounded bg-transparent p-1 dark:text-gray-200">
+              <option value="Impact, Arial, sans-serif">Impact</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Comic Sans MS, cursive">Comic Sans</option>
+            </select>
+            <label className="flex items-center gap-1">
+              <input type="number" value={topSettings.fontSize} onChange={e => setTopSettings({...topSettings, fontSize: Number(e.target.value)})} title="Font Size" className="w-12 border rounded bg-transparent p-1 dark:text-gray-200" min="10" max="100" />
+              px
+            </label>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" checked={topSettings.shadow} onChange={e => setTopSettings({...topSettings, shadow: e.target.checked})} />
+              Shadow
+            </label>
+          </div>
         </div>
 
         <div>
@@ -137,9 +185,26 @@ export default function MemeEditor() {
             type="text" 
             value={bottomText} 
             onChange={(e) => setBottomText(e.target.value)}
-            className="w-full border rounded-md p-2 bg-transparent"
+            className="w-full border rounded-md p-2 bg-transparent mb-2"
             placeholder="BOTTOM TEXT"
           />
+          <div className="flex gap-2 text-xs flex-wrap items-center">
+            <input type="color" value={bottomSettings.color} onChange={e => setBottomSettings({...bottomSettings, color: e.target.value})} title="Foreground Color" />
+            <input type="color" value={bottomSettings.bgColor} onChange={e => setBottomSettings({...bottomSettings, bgColor: e.target.value})} title="Background Color" />
+            <select value={bottomSettings.font} onChange={e => setBottomSettings({...bottomSettings, font: e.target.value})} className="border rounded bg-transparent p-1 dark:text-gray-200">
+              <option value="Impact, Arial, sans-serif">Impact</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Comic Sans MS, cursive">Comic Sans</option>
+            </select>
+            <label className="flex items-center gap-1">
+              <input type="number" value={bottomSettings.fontSize} onChange={e => setBottomSettings({...bottomSettings, fontSize: Number(e.target.value)})} title="Font Size" className="w-12 border rounded bg-transparent p-1 dark:text-gray-200" min="10" max="100" />
+              px
+            </label>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" checked={bottomSettings.shadow} onChange={e => setBottomSettings({...bottomSettings, shadow: e.target.checked})} />
+              Shadow
+            </label>
+          </div>
         </div>
 
         <button 
