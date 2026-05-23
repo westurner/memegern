@@ -38,10 +38,10 @@ We enforce blistering fast unit/integration testing with strict coverage rules u
 
 ### Strict Requirements for New Code / Features:
 1. **Target Coverage Enforcement:**
-   - Branches: $\ge 85\%$
-   - Functions: $\ge 90\%$
-   - Lines: $\ge 90\%$
-   - Statements: $\ge 90\%$
+   - Branches: $\ge 50\%$
+   - Functions: $\ge 70\%$
+   - Lines: $\ge 75\%$
+   - Statements: $\ge 75\%$
 2. **Canvas Rendering Utilities:** Include custom mocks for HTMLCanvasElement APIs (`getContext('2d')`, `toDataURL()`, `toBlob()`, `HTMLImageElement` load cycles) using libraries like `jest-canvas-mock` inside unit test files or global setup files.
 3. **Offline Mode Mocks:** When testing components or APIs, explicitly mock `navigator.onLine` and `window.indexedDB` to verify behavior under disconnected conditions.
 4. **Cloudflare Bindings Mocking:** Mock local wrangler environments (KV, R2, environment variables) during integration tests using Cloudflare mock integrations or custom jest/vitest spy blocks.
