@@ -46,6 +46,35 @@ describe('Storage Utils', () => {
     expect(memes[0].id).toBe(1);
   });
 
+  it('gets empty array when result is falsy', async () => {
+    const dummyDB = {
+      objectStoreNames: { contains: vi.fn().mockReturnValue(false) },
+      createObjectStore: vi.fn(),
+      transaction: vi.fn().mockReturnValue({
+        objectStore: vi.fn().mockReturnValue({
+          getAll: vi.fn().mockImplementation(() => {
+            const req: any = { result: null };
+            setTimeout(() => req.onsuccess && req.onsuccess(), 0);
+            return req;
+          })
+        })
+      })
+    };
+
+    (global as any).indexedDB = {
+      open: vi.fn().mockImplementation(() => {
+        const req: any = {};
+        setTimeout(() => {
+          if (req.onsuccess) req.onsuccess({ target: { result: dummyDB } });
+        }, 0);
+        return req;
+      })
+    };
+
+    const memes = await getGalleryMemes();
+    expect(memes).toEqual([]);
+  });
+
   it('handles existing object store and onerror', async () => {
     // Modify indexedDB mock to trigger onerror
     const dummyDB = {
@@ -54,13 +83,13 @@ describe('Storage Utils', () => {
       transaction: vi.fn().mockReturnValue({
         objectStore: vi.fn().mockReturnValue({
           add: vi.fn().mockImplementation(() => {
-            const req: any = {};
-            setTimeout(() => req.onerror && req.onerror({ target: { error: new Error('Add failed') } }), 0);
+            const req: any = { error: new Error('Add failed') };
+            setTimeout(() => req.onerror && req.onerror(), 0);
             return req;
           }),
           getAll: vi.fn().mockImplementation(() => {
-            const req: any = {};
-            setTimeout(() => req.onerror && req.onerror({ target: { error: new Error('Get failed') } }), 0);
+            const req: any = { error: new Error('Get failed') };
+            setTimeout(() => req.onerror && req.onerror(), 0);
             return req;
           })
         })
@@ -73,6 +102,21 @@ describe('Storage Utils', () => {
         setTimeout(() => {
           if (req.onupgradeneeded) req.onupgradeneeded({ target: { result: dummyDB } });
           if (req.onsuccess) req.onsuccess({ target: { result: dummyDB } });
+        }, 0);
+        return req;
+      })
+    };
+
+    await expect(saveMemeToGallery('test')).rejects.toThrow();
+    await expect(getGalleryMemes()).rejects.toThrow();
+  });
+
+  it('handles indexedDB.open onerror', async () => {
+    (global as any).indexedDB = {
+      open: vi.fn().mockImplementation(() => {
+        const req: any = { error: new Error('Open failed') };
+        setTimeout(() => {
+          if (req.onerror) req.onerror();
         }, 0);
         return req;
       })
