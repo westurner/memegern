@@ -66,7 +66,9 @@ describe('MemeEditor', () => {
 
   it('changes template selector correctly', () => {
     render(<MemeEditor />);
-    const select = screen.getByRole('combobox');
+    // There are multiple selects now (for fonts), so we use getByLabelText or getAllByRole
+    const selects = screen.getAllByRole('combobox');
+    const select = selects[0]; // The first one is the template selector
     fireEvent.change(select, { target: { value: 'penguin' } });
     expect((select as HTMLSelectElement).value).toBe('penguin');
   });
@@ -90,6 +92,47 @@ describe('MemeEditor', () => {
     expect(() => fireEvent.click(button)).not.toThrow();
     expect(mockClick).toHaveBeenCalled();
     vi.restoreAllMocks();
+  });
+
+  it('updates top text settings', () => {
+    render(<MemeEditor />);
+    // top settings font size and color
+    const colorInputs = screen.getAllByTitle('Foreground Color');
+    fireEvent.change(colorInputs[0], { target: { value: '#ff0000' } });
+    expect((colorInputs[0] as HTMLInputElement).value).toBe('#ff0000');
+
+    const fontSizeInputs = screen.getAllByTitle('Font Size');
+    fireEvent.change(fontSizeInputs[0], { target: { value: '50' } });
+    expect((fontSizeInputs[0] as HTMLInputElement).value).toBe('50');
+
+    // font selection
+    const selects = screen.getAllByRole('combobox');
+    fireEvent.change(selects[1], { target: { value: 'Arial, sans-serif' } });
+    expect((selects[1] as HTMLSelectElement).value).toBe('Arial, sans-serif');
+  });
+
+  it('updates bottom text settings', () => {
+    render(<MemeEditor />);
+    const colorInputs = screen.getAllByTitle('Foreground Color');
+    fireEvent.change(colorInputs[1], { target: { value: '#00ff00' } });
+    expect((colorInputs[1] as HTMLInputElement).value).toBe('#00ff00');
+
+    const fontSizeInputs = screen.getAllByTitle('Font Size');
+    fireEvent.change(fontSizeInputs[1], { target: { value: '60' } });
+    expect((fontSizeInputs[1] as HTMLInputElement).value).toBe('60');
+    
+    // font selection
+    const selects = screen.getAllByRole('combobox');
+    fireEvent.change(selects[2], { target: { value: 'Comic Sans MS, cursive' } });
+    expect((selects[2] as HTMLSelectElement).value).toBe('Comic Sans MS, cursive');
+  });
+
+  it('renders and updates canvas background color setting', () => {
+    render(<MemeEditor />);
+    const bgColorInput = screen.getByTitle('Canvas Background Color');
+    expect(bgColorInput).toBeInTheDocument();
+    fireEvent.change(bgColorInput, { target: { value: '#123456' } });
+    expect((bgColorInput as HTMLInputElement).value).toBe('#123456');
   });
 
   it('logs an error if saveMemeToGallery fails', async () => {

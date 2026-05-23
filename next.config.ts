@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+const path = require('path')
 
 const withSerwist = require("@serwist/next").default({
   swSrc: "src/app/sw.ts",
@@ -8,6 +9,7 @@ const withSerwist = require("@serwist/next").default({
 
 const nextConfig: NextConfig = {
   /* config options here */
+  outputFileTracingRoot: path.join(__dirname),
 };
 
 export default withSerwist(nextConfig);
