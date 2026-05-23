@@ -10,4 +10,4 @@ const nextConfig: NextConfig = {
   /* config options here */
 };
 
-module.exports = withSerwist(nextConfig);
+export default withSerwist(nextConfig);
