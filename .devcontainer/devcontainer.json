@@ -1,0 +1,35 @@
+{
+  "name": "memegern devcontainer",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": "../"
+  },
+  "runArgs": [
+    "--userns=keep-id",
+		"--security-opt=label=disable",
+		"--log-level=debug"
+  ],
+  // "mounts": [
+  //   {
+  //     "type": "bind",
+  //     "source": "/usr/sbin/distrobox-host-exec",
+  //     "target": "/usr/local/sbin/distrobox-host-exec"
+  //   }
+  // ],
+  "forwardPorts": [3000, 8000],
+  "postCreateCommand": "sh -c 'npm install && npm run build --workspace=memegern'", // Example: install root dependencies and build Next.js
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-docker",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-playwright.playwright",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "RooVeterinaryInc.roo-cline"
+      ]
+    }
+  },
+  "remoteUser": "appuser" // Or "root" or a specific user if created in Dockerfile
+}
