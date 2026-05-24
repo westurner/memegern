@@ -99,7 +99,8 @@ export default function MemeEditor() {
     img.onload = () => {
       setLoadedImages(prev => ({ ...prev, [key]: img }));
     };
-    img.src = template.src;
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    img.src = `${basePath}${template.src}`;
     /* v8 ignore next 3 */
     if (process.env.NODE_ENV === 'test' && typeof img.onload === 'function') {
       img.onload(new Event('load') as any);
@@ -206,7 +207,6 @@ export default function MemeEditor() {
           >
             <option value="philosoraptor">Philosoraptor</option>
             <option value="penguin">Socially Awkward Penguin</option>
-            <option value="gemini_hm6y4l">Gemini SVG Generated</option>
             <option value="philosoraptor_07">Philosoraptor 07 (SVG)</option>
             <option value="philosoraptor_09">Philosoraptor 09 (SVG)</option>
             <option value="socially_awkward_penguin_02_png">Socially Awkward Penguin 02 (PNG)</option>
