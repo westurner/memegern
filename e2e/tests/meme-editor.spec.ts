@@ -22,7 +22,7 @@ test.describe('Memegern E2E Tests', () => {
     await page.getByPlaceholder('BOTTOM TEXT').fill('AUTOMATION RULEZ');
 
     // Interact with template select
-    const templateSelect = page.locator('select');
+    const templateSelect = page.locator('select').first();
     await templateSelect.selectOption('penguin');
     await expect(templateSelect).toHaveValue('penguin');
 
@@ -64,5 +64,32 @@ test.describe('Memegern E2E Tests', () => {
         expect(stats.size).toBeGreaterThan(500);
       }
     }
+  });
+
+  test('should generate share config link and verify initial state on load', async ({ page, context }) => {
+    await page.goto('/');
+
+    const topTextInput = page.getByPlaceholder('TOP TEXT');
+    await topTextInput.fill('SHARED TOP TEXT');
+
+    await page.getByRole('button', { name: 'Share Config Link' }).click();
+
+    // The share link appears inside an element with text 'Share URL:'
+    const shareUrlContainer = page.locator('text=Share URL:').locator('..');
+    const shareLinkLocator = shareUrlContainer.locator('a');
+
+    await shareLinkLocator.waitFor({ state: 'visible' });
+
+    const shareUrl = await shareLinkLocator.getAttribute('href');
+    expect(shareUrl).toContain('?config=');
+    expect(shareUrl).toContain('&sig=');
+
+    // Open a new page with the share URL
+    const newPage = await context.newPage();
+    await newPage.goto(shareUrl as string);
+
+    // Verify the inputs were pre-filled correctly
+    const newPageTopTextInput = newPage.getByPlaceholder('TOP TEXT');
+    await expect(newPageTopTextInput).toHaveValue('SHARED TOP TEXT');
   });
 });

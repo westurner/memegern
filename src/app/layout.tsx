@@ -26,7 +26,7 @@ export default function RootLayout({
           </a>
           
           <header className="w-full p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900 shadow-sm">
-            <div className="font-bold text-xl tracking-tight">Memegern</div>
+            <h1 className="font-bold text-xl tracking-tight">Memegern</h1>
             <nav aria-label="Main Navigation" className="flex items-center gap-4">
               <ThemeToggle />
             </nav>

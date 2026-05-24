@@ -2,6 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
+import { useSearchParams } from 'next/navigation';
+import { signData, verifySignature } from '../utils/crypto';
+import { encodeConfig, loadSharedConfig } from '../app/models/meme/shareurl';
 import { saveMemeToGallery } from '../utils/storage';
 
 const TEMPLATES: Record<string, { src: string; width: number; height: number }> = {
@@ -60,9 +63,12 @@ const TEMPLATES: Record<string, { src: string; width: number; height: number }> 
 type TemplateKey = string;
 
 export default function MemeEditor() {
+  const searchParams = useSearchParams();
+  
   const [templateKey, setTemplateKey] = useState<TemplateKey>('philosoraptor');
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
   
   const [topSettings, setTopSettings] = useState({
     color: '#ffffff',
@@ -82,6 +88,21 @@ export default function MemeEditor() {
   
   const [canvasBgColor, setCanvasBgColor] = useState('#000000');
   const [loadedImages, setLoadedImages] = useState<Record<string, HTMLImageElement>>({});
+
+  useEffect(() => {
+    const configStr = searchParams.get('config');
+    const sigStr = searchParams.get('sig');
+    if (configStr && sigStr) {
+      loadSharedConfig(configStr, sigStr, {
+        setTemplateKey,
+        setTopText,
+        setBottomText,
+        setTopSettings,
+        setBottomSettings,
+        setCanvasBgColor
+      });
+    }
+  }, [searchParams]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   console.log('Cache buster!', canvasRef);
@@ -190,6 +211,32 @@ export default function MemeEditor() {
     }
   };
 
+  const [shareUrl, setShareUrl] = useState('');
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleShare = async () => {
+    setIsSharing(true);
+    try {
+      const shareConfig = {
+          templateKey,
+          topText,
+          bottomText,
+          topSettings,
+          bottomSettings,
+          canvasBgColor,
+      };
+      const encodedConfig = encodeConfig(shareConfig);
+      const signature = await signData(encodedConfig);
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+      const shareLink = `${window.location.origin}${basePath}/?config=${encodedConfig}&sig=${signature}`;
+      setShareUrl(shareLink);
+    } catch (err) {
+      console.error('Failed to share', err);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row gap-8 w-full items-start justify-center">
       {/* Canvas Area */}
@@ -286,12 +333,54 @@ export default function MemeEditor() {
           </div>
         </div>
 
-        <button 
-          onClick={handleDownload}
-          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
-        >
-          Download Meme
-        </button>
+        <div className="flex flex-col gap-2 mt-4">
+          <div className="flex gap-2">
+            <button 
+              onClick={handleDownload}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
+            >
+              🡇 Download Meme
+            </button>
+            <button 
+              onClick={async () => {
+                if (!shareUrl) return;
+                try {
+                  await navigator.clipboard.writeText(shareUrl);
+                  setIsCopied(true);
+                  setTimeout(() => setIsCopied(false), 2000);
+                } catch (err) {
+                  console.error('Failed to copy text: ', err);
+                }
+              }}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors"
+            >
+              {isCopied ? 'Copied' : '📋 Copy Link'}
+            </button>
+          </div>
+          
+          <button 
+            onClick={handleShare}
+            disabled={isSharing}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors disabled:opacity-50"
+          >
+            {isSharing ? 'Generating Link...' : 'Share Config Link'}
+          </button>
+
+          {shareUrl && (
+            <div className="mt-2 text-sm p-2 bg-gray-100 dark:bg-gray-700 rounded break-all">
+              <p className="font-bold mb-1 text-black dark:text-white">Share URL:</p>
+              <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                {shareUrl}
+              </a>
+              <button 
+                onClick={() => navigator.clipboard.writeText(shareUrl)}
+                className="mt-2 w-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 py-1 rounded transition-colors text-xs font-semibold text-black dark:text-white"
+              >
+                Copy Link
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
