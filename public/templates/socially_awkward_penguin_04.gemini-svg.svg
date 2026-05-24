@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <!-- Dark teal background matching the generated image -->
+    <radialGradient id="bg-grad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#1c485c" />
+      <stop offset="100%" stop-color="#0e2a38" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bg-grad)" />
+
+  <!-- Socially Awkward Penguin -->
+  <g transform="translate(250, 45)">
+    
+    <!-- Shadow under penguin -->
+    <ellipse cx="140" cy="355" rx="60" ry="10" fill="#091c26" opacity="0.6" />
+
+    <!-- Back Foot (Right) -->
+    <path d="M 160,345 
+             C 170,340 205,340 215,355 
+             C 215,360 190,365 170,360 
+             C 155,358 155,350 160,345 Z" 
+          fill="#efa633" stroke="#c4811a" stroke-width="1.5" stroke-linejoin="round" />
+
+    <!-- Front Foot (Left) -->
+    <path d="M 100,340 
+             C 110,335 145,335 155,350 
+             C 155,355 130,360 110,355 
+             C 95,353 95,345 100,340 Z" 
+          fill="#f4ae3f" stroke="#c4811a" stroke-width="1.5" stroke-linejoin="round" />
+
+    <!-- Main Body Base (Dark Grey/Black Coat) -->
+    <path d="M 140,25 
+             C 210,25 240,80 235,160 
+             C 230,240 260,310 270,325 
+             C 255,335 220,335 200,315 
+             C 180,340 130,345 95,315 
+             C 65,290 60,220 70,160 
+             C 80,100 90,25 140,25 Z" 
+          fill="#2b313a" />
+
+    <!-- Accent/Shadow Flap on the back (The blueish tint from the generated image) -->
+    <path d="M 185,160 
+             C 205,190 200,260 190,290 
+             C 220,250 235,210 225,160 
+             C 215,110 195,140 185,160 Z" 
+          fill="#44647a" opacity="0.8" />
+
+    <!-- White Belly and Face -->
+    <path d="M 135,50 
+             C 165,55 185,90 180,140 
+             C 175,190 195,250 175,290 
+             C 155,330 115,315 95,280 
+             C 75,245 80,190 90,145 
+             C 100,100 110,45 135,50 Z" 
+          fill="#ffffff" />
+
+    <!-- Eye Area (Nervous, sideways glance) -->
+    <!-- Sclera (White of eye) -->
+    <path d="M 125,95 
+             C 135,85 150,90 150,105 
+             C 150,120 135,125 125,115 
+             C 115,105 115,105 125,95 Z" 
+          fill="#ffffff" />
+    
+    <!-- Back Eye (Visible just slightly on the left) -->
+    <ellipse cx="102" cy="105" rx="5" ry="7" fill="#ffffff" />
+    <ellipse cx="100" cy="105" rx="2.5" ry="4" fill="#2b313a" />
+
+    <!-- Main Pupil -->
+    <path d="M 130,100 
+             C 135,95 142,98 142,105 
+             C 142,112 135,115 130,110 
+             C 125,105 125,105 130,100 Z" 
+          fill="#2b313a" />
+    <!-- Eye Glint/Reflection -->
+    <circle cx="132" cy="102" r="2.5" fill="#ffffff" />
+
+    <!-- Beak -->
+    <!-- Top Beak -->
+    <path d="M 120,115 
+             C 100,120 70,135 70,135 
+             C 90,145 110,145 135,135 
+             C 130,125 125,120 120,115 Z" 
+          fill="#eaa22b" stroke="#c4811a" stroke-width="1.5" stroke-linejoin="round" />
+    <!-- Lower Beak curve separation -->
+    <path d="M 72,135 C 95,135 115,135 130,132" fill="none" stroke="#b06c09" stroke-width="1.5" />
+
+    <!-- Front Awkward Flipper -->
+    <path d="M 105,145 
+             C 75,140 40,155 35,190 
+             C 45,215 65,225 90,210 
+             C 115,195 120,175 105,145 Z" 
+          fill="#2b313a" />
+          
+    <!-- Subtle shading on awkward flipper to give it depth -->
+    <path d="M 95,155 
+             C 70,152 45,165 42,190 
+             C 50,205 65,210 85,200 
+             C 100,190 100,175 95,155 Z" 
+          fill="#373f4a" />
+
+  </g>
+</svg>

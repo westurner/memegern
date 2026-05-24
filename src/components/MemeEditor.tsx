@@ -15,11 +15,11 @@ const TEMPLATES: Record<string, { src: string; width: number; height: number }> 
     width: 500,
     height: 500,
   },
-  gemini_hm6y4l: {
-    src: '/templates/Gemini_Generated_Image_hm6y4lhm6y4lhm6y_v0.0.9.svg',
-    width: 500,
-    height: 500,
-  },
+  // gemini_hm6y4l: {
+  //   src: '/templates/Gemini_Generated_Image_hm6y4lhm6y4lhm6y_v0.0.9.svg',
+  //   width: 500,
+  //   height: 500,
+  // },
   philosoraptor_07: {
     src: '/templates/philosoraptor_07.svg',
     width: 500,
