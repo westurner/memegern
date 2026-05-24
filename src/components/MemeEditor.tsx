@@ -92,6 +92,8 @@ export default function MemeEditor() {
     if (loadedImages[key]) return;
 
     const template = TEMPLATES[key];
+    if (!template) return;
+
     const img = new window.Image();
     img.crossOrigin = 'anonymous'; // Important to prevent canvas tainting
     img.onload = () => {
