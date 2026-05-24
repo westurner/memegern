@@ -107,6 +107,10 @@ export default function MemeEditor() {
     }
   }, [templateKey, loadedImages]);
 
+  const SCALE = 2; // Increase this for even higher resolution (2 = 1000x1000)
+  const LOGICAL_WIDTH = 500;
+  const LOGICAL_HEIGHT = 500;
+
   // Draw on canvas
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -117,14 +121,17 @@ export default function MemeEditor() {
     /* v8 ignore next */
     if (!ctx) return;
 
+    ctx.save();
+    ctx.scale(SCALE, SCALE);
+
     // Background Color
     ctx.fillStyle = canvasBgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     
     // Draw image if loaded
     const bgImage = loadedImages[templateKey];
     if (bgImage) {
-      ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bgImage, 0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
       
     const drawSettingsText = (text: string, y: number, settings: typeof topSettings) => {
@@ -148,8 +155,8 @@ export default function MemeEditor() {
         ctx.shadowOffsetY = 0;
       }
 
-      ctx.strokeText(text.toUpperCase(), canvas.width / 2, y);
-      ctx.fillText(text.toUpperCase(), canvas.width / 2, y);
+      ctx.strokeText(text.toUpperCase(), LOGICAL_WIDTH / 2, y);
+      ctx.fillText(text.toUpperCase(), LOGICAL_WIDTH / 2, y);
       
       // Reset shadow for next draw
       ctx.shadowColor = 'transparent';
@@ -159,7 +166,9 @@ export default function MemeEditor() {
     };
 
     drawSettingsText(topText, 50, topSettings);
-    drawSettingsText(bottomText, canvas.height - 20, bottomSettings);
+    drawSettingsText(bottomText, LOGICAL_HEIGHT - 20, bottomSettings);
+    
+    ctx.restore();
   }, [templateKey, loadedImages, topText, bottomText, topSettings, bottomSettings, canvasBgColor]);
 
   const handleDownload = async () => {
@@ -187,10 +196,10 @@ export default function MemeEditor() {
       <div className="flex-1 flex justify-center  rounded-lg p-2 bg-gray-50 dark:bg-gray-900 w-full min-w-0">
         <canvas 
           ref={canvasRef} 
-          width={500} 
-          height={500}
+          width={LOGICAL_WIDTH * SCALE} 
+          height={LOGICAL_HEIGHT * SCALE}
           className="max-w-full h-auto object-contain"
-          style={{ aspectRatio: '1/1' }}
+          style={{ aspectRatio: `${LOGICAL_WIDTH}/${LOGICAL_HEIGHT}` }}
         />
       </div>
 
