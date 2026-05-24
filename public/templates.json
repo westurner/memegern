@@ -1,0 +1,65 @@
+[
+  {
+    "id": "philosoraptor",
+    "name": "Philosoraptor",
+    "url": "/templates/philosoraptor.jpg",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "penguin",
+    "name": "Socially Awkward Penguin",
+    "url": "/templates/penguin.jpg",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "philosoraptor_07",
+    "name": "Philosoraptor 07 (SVG)",
+    "url": "/templates/philosoraptor_07.svg",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "philosoraptor_09",
+    "name": "Philosoraptor 09 (SVG)",
+    "url": "/templates/philosoraptor_09.svg",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "socially_awkward_penguin_02_png",
+    "name": "Socially Awkward Penguin 02 (PNG)",
+    "url": "/templates/socially_awkward_penguin_02_v0.0.07.png",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "socially_awkward_penguin_02_svg",
+    "name": "Socially Awkward Penguin 02 (SVG)",
+    "url": "/templates/socially_awkward_penguin_02_v0.0.07.svg",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "socially_awkward_penguin_03",
+    "name": "Socially Awkward Penguin 03",
+    "url": "/templates/socially_awkward_penguin_03.gemini-svg.svg",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "socially_awkward_penguin_04",
+    "name": "Socially Awkward Penguin 04",
+    "url": "/templates/socially_awkward_penguin_04.gemini-svg.svg",
+    "width": 500,
+    "height": 500
+  },
+  {
+    "id": "socially_awkward_penguin_05",
+    "name": "Socially Awkward Penguin 05",
+    "url": "/templates/socially_awkward_penguin_05.gemini-svg.svg",
+    "width": 500,
+    "height": 500
+  }
+]

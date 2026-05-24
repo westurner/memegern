@@ -2,8 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Memegern E2E Tests', () => {
   test('should load the homepage and show MemeEditor', async ({ page }) => {
+    // Wait for templates to load dynamically
+    const templatesPromise = page.waitForResponse(response => response.url().includes('templates.json') && response.status() === 200);
+
     // Go to the main page
     await page.goto('/');
+    await templatesPromise;
 
     // Check title
     await expect(page.locator('h1')).toContainText('Memegern');
@@ -91,5 +95,44 @@ test.describe('Memegern E2E Tests', () => {
     // Verify the inputs were pre-filled correctly
     const newPageTopTextInput = newPage.getByPlaceholder('TOP TEXT');
     await expect(newPageTopTextInput).toHaveValue('SHARED TOP TEXT');
+  });
+
+  test('should save downloaded meme to offline gallery and allow editing', async ({ page }) => {
+    const templatesPromise = page.waitForResponse(response => response.url().includes('templates.json') && response.status() === 200);
+    await page.goto('/');
+    await templatesPromise;
+
+    // Give it a unique text to verify later
+    const uniqueText = `GALLERY TEST ${Date.now()}`;
+    await page.getByPlaceholder('TOP TEXT').fill(uniqueText);
+
+    // Mock the download so it doesn't prompt
+    const downloadPromise = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
+    await page.getByText('Download Meme').click();
+    await downloadPromise;
+
+    // Verify it appeared in the Offline Gallery
+    const gallerySection = page.locator('h2', { hasText: 'Your Offline Gallery' });
+    await expect(gallerySection).toBeVisible();
+
+    // Verify gallery has at least one item, wait for Masonry to render
+    const galleryItems = page.locator('.MuiMasonry-root').locator('img');
+    await expect(galleryItems.first()).toBeVisible();
+
+    // The saved meme should have a "Click to Edit" overlay
+    const editOverlay = page.getByText('Click to Edit').first();
+    await expect(editOverlay).toBeVisible();
+
+    // Change the text to something else so we can verify "Click to Edit" resets it
+    await page.getByPlaceholder('TOP TEXT').fill('CHANGED TEXT');
+
+    // Click the gallery item to edit
+    await editOverlay.click();
+
+    // The page will navigate back with config in query param
+    await page.waitForURL(/\?config=/);
+
+    // Check if the text is restored
+    await expect(page.getByPlaceholder('TOP TEXT')).toHaveValue(uniqueText);
   });
 });

@@ -8,10 +8,21 @@ vi.mock('../../utils/storage', () => ({
   getGalleryMemes: vi.fn().mockResolvedValue([])
 }));
 
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn() })
+}));
+
 describe('MemeEditor', () => {
   let originalImage: any;
 
   beforeAll(() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve([
+        { id: 'philosoraptor', name: 'Philosoraptor', url: '/templates/philosoraptor.jpg', width: 500, height: 500 }
+      ])
+    }) as any;
+    
     originalImage = window.Image;
     Object.defineProperty(window, 'Image', {
       writable: true,
@@ -41,9 +52,13 @@ describe('MemeEditor', () => {
     });
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders the editor with default inputs', () => {
     render(<MemeEditor />);
-    expect(screen.getByText('Editor Settings')).toBeInTheDocument();
+    expect(screen.getByText('Template')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('TOP TEXT')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('BOTTOM TEXT')).toBeInTheDocument();
   });
@@ -64,13 +79,14 @@ describe('MemeEditor', () => {
     }, { timeout: 200 });
   });
 
-  it('changes template selector correctly', () => {
+  it('changes template selector correctly', async () => {
     render(<MemeEditor />);
     // There are multiple selects now (for fonts), so we use getByLabelText or getAllByRole
     const selects = screen.getAllByRole('combobox');
+    await waitFor(() => expect(screen.getByRole('option', { name: 'Philosoraptor' })).toBeInTheDocument());
     const select = selects[0]; // The first one is the template selector
-    fireEvent.change(select, { target: { value: 'penguin' } });
-    expect((select as HTMLSelectElement).value).toBe('penguin');
+    fireEvent.change(select, { target: { value: 'philosoraptor' } });
+    expect((select as HTMLSelectElement).value).toBe('philosoraptor');
   });
 
   it('triggers download when button is clicked', () => {
@@ -152,7 +168,7 @@ describe('MemeEditor', () => {
     });
 
     render(<MemeEditor />);
-    const button = screen.getByText('Download Meme');
+    const button = screen.getByText('Save Meme');
     fireEvent.click(button);
     
     await waitFor(() => {

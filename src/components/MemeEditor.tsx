@@ -1,64 +1,27 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SaveIcon from '@mui/icons-material/Save';
+
+//import ModeNightIcon from '@mui/icons-material/ModeNight';
+//import DarkModeIcon from '@mui/icons-material/DarkMode';
+//import LightModeIcon from '@mui/icons-material/LightMode';
+//import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 
 import { useSearchParams } from 'next/navigation';
 import { signData, verifySignature } from '../utils/crypto';
 import { encodeConfig, loadSharedConfig } from '../app/models/meme/shareurl';
 import { saveMemeToGallery } from '../utils/storage';
 
-const TEMPLATES: Record<string, { src: string; width: number; height: number }> = {
-  philosoraptor: {
-    src: '/templates/philosoraptor.jpg',
-    width: 500,
-    height: 500,
-  },
-  penguin: {
-    src: '/templates/penguin.jpg',
-    width: 500,
-    height: 500,
-  },
-  // gemini_hm6y4l: {
-  //   src: '/templates/Gemini_Generated_Image_hm6y4lhm6y4lhm6y_v0.0.9.svg',
-  //   width: 500,
-  //   height: 500,
-  // },
-  philosoraptor_07: {
-    src: '/templates/philosoraptor_07.svg',
-    width: 500,
-    height: 500,
-  },
-  philosoraptor_09: {
-    src: '/templates/philosoraptor_09.svg',
-    width: 500,
-    height: 500,
-  },
-  socially_awkward_penguin_02_png: {
-    src: '/templates/socially_awkward_penguin_02_v0.0.07.png',
-    width: 500,
-    height: 500,
-  },
-  socially_awkward_penguin_02_svg: {
-    src: '/templates/socially_awkward_penguin_02_v0.0.07.svg',
-    width: 500,
-    height: 500,
-  },
-  socially_awkward_penguin_03: {
-    src: '/templates/socially_awkward_penguin_03.gemini-svg.svg',
-    width: 500,
-    height: 500,
-  },
-  socially_awkward_penguin_04: {
-    src: '/templates/socially_awkward_penguin_04.gemini-svg.svg',
-    width: 500,
-    height: 500,
-  },
-  socially_awkward_penguin_05: {
-    src: '/templates/socially_awkward_penguin_05.gemini-svg.svg',
-    width: 500,
-    height: 500,
-  },
-};
+export interface Template {
+  id: string;
+  name: string;
+  url: string;
+  width: number;
+  height: number;
+}
 
 type TemplateKey = string;
 
@@ -66,6 +29,30 @@ export default function MemeEditor() {
   const searchParams = useSearchParams();
   
   const [templateKey, setTemplateKey] = useState<TemplateKey>('philosoraptor');
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [customTemplatesUrl, setCustomTemplatesUrl] = useState('');
+  
+  useEffect(() => {
+    fetch('/templates.json')
+      .then(res => res.json())
+      .then(data => setTemplates(data))
+      .catch(err => console.error('Failed to load templates:', err));
+  }, []);
+
+  const handleLoadCustomTemplates = async () => {
+    if (!customTemplatesUrl) return;
+    try {
+      const res = await fetch(customTemplatesUrl);
+      const data = await res.json();
+      setTemplates(data);
+      if (data.length > 0) {
+        setTemplateKey(data[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to load custom templates:', err);
+      alert('Failed to load templates from the provided URL');
+    }
+  };
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
   const [isCopied, setIsCopied] = useState(false);
@@ -110,9 +97,9 @@ export default function MemeEditor() {
   // Preload images
   useEffect(() => {
     const key = templateKey;
-    if (loadedImages[key]) return;
+    if (loadedImages[key] || templates.length === 0) return;
 
-    const template = TEMPLATES[key];
+    const template = templates.find(t => t.id === key);
     if (!template) return;
 
     const img = new window.Image();
@@ -121,12 +108,12 @@ export default function MemeEditor() {
       setLoadedImages(prev => ({ ...prev, [key]: img }));
     };
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-    img.src = `${basePath}${template.src}`;
+    img.src = `${basePath}${template.url}`;
     /* v8 ignore next 3 */
     if (process.env.NODE_ENV === 'test' && typeof img.onload === 'function') {
       img.onload(new Event('load') as any);
     }
-  }, [templateKey, loadedImages]);
+  }, [templateKey, loadedImages, templates]);
 
   const SCALE = 2; // Increase this for even higher resolution (2 = 1000x1000)
   const LOGICAL_WIDTH = 500;
@@ -192,6 +179,31 @@ export default function MemeEditor() {
     ctx.restore();
   }, [templateKey, loadedImages, topText, bottomText, topSettings, bottomSettings, canvasBgColor]);
 
+  const handleSave = async () => {
+    const canvas = canvasRef.current;
+    /* v8 ignore next */
+    if (!canvas) return;
+    
+    const dataUrl = canvas.toDataURL('image/jpeg');
+    
+    // Save to offline gallery
+    try {
+      const shareConfig = {
+          templateKey,
+          topText,
+          bottomText,
+          topSettings,
+          bottomSettings,
+          canvasBgColor,
+      };
+      const encodedConfig = encodeConfig(shareConfig);
+      await saveMemeToGallery(dataUrl, encodedConfig);
+      window.dispatchEvent(new Event('meme-saved'));
+    } catch (err) {
+      console.error('Failed to save meme to offline gallery', err);
+    }
+  };
+
   const handleDownload = async () => {
     const canvas = canvasRef.current;
     /* v8 ignore next */
@@ -202,13 +214,6 @@ export default function MemeEditor() {
     link.download = `meme-${Date.now()}.jpg`;
     link.href = dataUrl;
     link.click();
-    
-    // Save to offline gallery
-    try {
-      await saveMemeToGallery(dataUrl);
-    } catch (err) {
-      console.error('Failed to save meme to offline gallery', err);
-    }
   };
 
   const [shareUrl, setShareUrl] = useState('');
@@ -261,16 +266,30 @@ export default function MemeEditor() {
             onChange={(e) => setTemplateKey(e.target.value as TemplateKey)}
             className="w-full border rounded-md p-2 bg-transparent mb-2"
           >
-            <option value="philosoraptor">Philosoraptor</option>
-            <option value="penguin">Socially Awkward Penguin</option>
-            <option value="philosoraptor_07">Philosoraptor 07 (SVG)</option>
-            <option value="philosoraptor_09">Philosoraptor 09 (SVG)</option>
-            <option value="socially_awkward_penguin_02_png">Socially Awkward Penguin 02 (PNG)</option>
-            <option value="socially_awkward_penguin_02_svg">Socially Awkward Penguin 02 (SVG)</option>
-            <option value="socially_awkward_penguin_03">Socially Awkward Penguin 03</option>
-            <option value="socially_awkward_penguin_04">Socially Awkward Penguin 04</option>
-            <option value="socially_awkward_penguin_05">Socially Awkward Penguin 05</option>
+            {templates.map(t => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
           </select>
+          <details className="mb-4">
+            <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 mb-2">
+              Load custom templates
+            </summary>
+            <div className="flex gap-2 items-center">
+              <input 
+                type="text" 
+                value={customTemplatesUrl} 
+                onChange={e => setCustomTemplatesUrl(e.target.value)} 
+                placeholder="Custom templates URL" 
+                className="flex-1 border rounded-md p-1 text-sm bg-transparent"
+              />
+              <button 
+                onClick={handleLoadCustomTemplates}
+                className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-2 py-1 rounded text-sm transition-colors"
+              >
+                Load URL
+              </button>
+            </div>
+          </details>
           <div className="flex gap-2 items-center mt-2">
             <label className="text-sm font-medium">Background Color</label>
             <input type="color" value={canvasBgColor} onChange={e => setCanvasBgColor(e.target.value)} title="Canvas Background Color" />
@@ -336,10 +355,16 @@ export default function MemeEditor() {
         <div className="flex flex-col gap-2 mt-4">
           <div className="flex gap-2">
             <button 
-              onClick={handleDownload}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
+              onClick={handleSave}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors flex items-center justify-center gap-2"
             >
-              🡇 Download Meme
+              <SaveIcon /> Save Meme
+            </button>
+            <button 
+              onClick={handleDownload}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors flex items-center justify-center gap-2"
+            >
+              <DownloadRoundedIcon /> Download Meme
             </button>
             <button 
               onClick={async () => {
@@ -376,7 +401,7 @@ export default function MemeEditor() {
                 onClick={() => navigator.clipboard.writeText(shareUrl)}
                 className="mt-2 w-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 py-1 rounded transition-colors text-xs font-semibold text-black dark:text-white"
               >
-                Copy Link
+                <ContentCopyIcon />Copy Link
               </button>
             </div>
           )}
