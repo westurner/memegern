@@ -10,6 +10,7 @@ const withSerwist = require("@serwist/next").default({
 const nextConfig: NextConfig = {
   /* config options here */
   output: process.env.BUILD_TARGET === 'static' ? 'export' : undefined,
+  basePath: process.env.BUILD_TARGET === 'static' ? '/memegern' : undefined,
   images: {
     unoptimized: process.env.BUILD_TARGET === 'static',
   },

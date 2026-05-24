@@ -24,6 +24,8 @@ jobs:
         run: npm ci
       - name: Build with Next.js
         run: npm run build:static
+      - name: Disable Jekyll
+        run: touch out/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
