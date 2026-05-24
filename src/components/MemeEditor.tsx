@@ -181,7 +181,7 @@ export default function MemeEditor() {
   return (
     <div className="flex flex-col md:flex-row gap-8 w-full items-start justify-center">
       {/* Canvas Area */}
-      <div className="flex-1 flex justify-center border-2 border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 dark:bg-gray-900 w-full min-w-0">
+      <div className="flex-1 flex justify-center  rounded-lg p-2 bg-gray-50 dark:bg-gray-900 w-full min-w-0">
         <canvas 
           ref={canvasRef} 
           width={500} 

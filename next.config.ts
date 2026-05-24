@@ -9,6 +9,10 @@ const withSerwist = require("@serwist/next").default({
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: process.env.BUILD_TARGET === 'static' ? 'export' : undefined,
+  images: {
+    unoptimized: process.env.BUILD_TARGET === 'static',
+  },
   outputFileTracingRoot: path.join(__dirname),
 };
 
