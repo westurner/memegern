@@ -54,7 +54,7 @@ const TEMPLATES: Record<string, { src: string; width: number; height: number }> 
     src: '/templates/socially_awkward_penguin_05.gemini-svg.svg',
     width: 500,
     height: 500,
-  }
+  },
 };
 
 type TemplateKey = string;
@@ -84,6 +84,7 @@ export default function MemeEditor() {
   const [loadedImages, setLoadedImages] = useState<Record<string, HTMLImageElement>>({});
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  console.log('Cache buster!', canvasRef);
 
   // Preload images
   useEffect(() => {
@@ -235,11 +236,11 @@ export default function MemeEditor() {
               <option value="Arial, sans-serif">Arial</option>
               <option value="Comic Sans MS, cursive">Comic Sans</option>
             </select>
-            <label className="flex items-center gap-1">
+            <label className="flex items-center gap-1.5">
               <input type="number" value={topSettings.fontSize} onChange={e => setTopSettings({...topSettings, fontSize: Number(e.target.value)})} title="Font Size" className="w-12 border rounded bg-transparent p-1 dark:text-gray-200" min="10" max="100" />
               px
             </label>
-            <label className="flex items-center gap-1">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={topSettings.shadow} onChange={e => setTopSettings({...topSettings, shadow: e.target.checked})} />
               Shadow
             </label>
@@ -267,7 +268,7 @@ export default function MemeEditor() {
               <input type="number" value={bottomSettings.fontSize} onChange={e => setBottomSettings({...bottomSettings, fontSize: Number(e.target.value)})} title="Font Size" className="w-12 border rounded bg-transparent p-1 dark:text-gray-200" min="10" max="100" />
               px
             </label>
-            <label className="flex items-center gap-1">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={bottomSettings.shadow} onChange={e => setBottomSettings({...bottomSettings, shadow: e.target.checked})} />
               Shadow
             </label>

@@ -1,21 +1,20 @@
+/// <reference lib="webworker" />
 import { defaultCache } from "@serwist/next/worker";
-import type { PrecacheEntry, SerwistGlobalConfig } from "@serwist/precaching";
-import { Serwist } from "@serwist/sw";
+import type { PrecacheEntry } from "@serwist/precaching";
+import { installSerwist } from "@serwist/sw";
 
 declare global {
-  interface WorkerGlobalScope extends SerwistGlobalConfig {
+  interface WorkerGlobalScope {
     __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
   }
 }
 
 declare const self: ServiceWorkerGlobalScope;
 
-const serwist = new Serwist({
+installSerwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: defaultCache,
 });
-
-serwist.addEventListeners();

@@ -43,7 +43,7 @@ describe('MemeEditor', () => {
 
   it('renders the editor with default inputs', () => {
     render(<MemeEditor />);
-    expect(screen.getByText('Editor')).toBeInTheDocument();
+    expect(screen.getByText('Editor Settings')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('TOP TEXT')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('BOTTOM TEXT')).toBeInTheDocument();
   });

@@ -57,3 +57,5 @@ e2e-logs/
 
 *.pyc
 __pycache__
+
+public/templates
