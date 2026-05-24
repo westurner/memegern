@@ -14,6 +14,18 @@ import { verifySignature } from '../../../utils/crypto';
  * 5. Never remove or re-order existing fields, as it will invalidate previously shared URLs.
  */
 
+/**
+ * Serializes text layer settings into an ordered array of values.
+ * This establishes the fixed-index property schema used during URL compression.
+ * 
+ * @param settings - The styling object applied to a specific text layer.
+ * @param settings.color - The text color.
+ * @param settings.bgColor - The text background color.
+ * @param settings.font - The font family name.
+ * @param settings.fontSize - The numeric size of the font.
+ * @param settings.shadow - Flag indicating if a drop shadow is applied.
+ * @returns An array of these settings in sequence
+ */
 function serializeSettings(settings: any = {}) {
   return [
     settings.color,
@@ -40,6 +52,8 @@ export function encodeConfig(config: unknown): string {
 
   // WARNING: Always append new fields to the end!
   const fields = [
+    /** Schema Version */
+    'V1',
     conf.templateKey,
     conf.canvasBgColor,
     conf.topText,
@@ -117,22 +131,27 @@ export function decodeConfig(base64urlStr: string): unknown {
   const rawFields = splitWithEscape(str, '|');
   const fields = rawFields.map(unescapeField);
 
-  const deserializeSettings = (offset: number) => ({
-    color: fields[offset],
-    bgColor: fields[offset + 1],
-    font: fields[offset + 2],
-    fontSize: fields[offset + 3] ? Number(fields[offset + 3]) : undefined,
-    shadow: fields[offset + 4] === 'true',
+  let offset = 0;
+  if (fields[0] === 'V1') {
+    offset = 1;
+  }
+
+  const deserializeSettings = (baseOffset: number) => ({
+    color: fields[baseOffset],
+    bgColor: fields[baseOffset + 1],
+    font: fields[baseOffset + 2],
+    fontSize: fields[baseOffset + 3] ? Number(fields[baseOffset + 3]) : undefined,
+    shadow: fields[baseOffset + 4] === 'true',
   });
 
   // Read fields strictly by index to support backwards compatibility
   return {
-    templateKey: fields[0],
-    canvasBgColor: fields[1],
-    topText: fields[2],
-    topSettings: deserializeSettings(3),
-    bottomText: fields[8],
-    bottomSettings: deserializeSettings(9),
+    templateKey: fields[offset + 0],
+    canvasBgColor: fields[offset + 1],
+    topText: fields[offset + 2],
+    topSettings: deserializeSettings(offset + 3),
+    bottomText: fields[offset + 8],
+    bottomSettings: deserializeSettings(offset + 9),
   };
 }
 
