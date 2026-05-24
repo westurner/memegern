@@ -84,7 +84,7 @@ export default function OfflineGallery() {
     return () => window.removeEventListener('meme-saved', loadMemes);
   }, []);
 
-  /* v8 ignore next 3 */
+  /* istanbul ignore next */
   if (memes.length === 0) {
     return null;
   }
@@ -137,7 +137,7 @@ export default function OfflineGallery() {
     }
   };
 
-  /* v8 ignore next 3 */
+  /* istanbul ignore next */
   if (memes.length === 0) {
     return null;
   }

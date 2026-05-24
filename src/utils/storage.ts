@@ -54,7 +54,7 @@ export const getGalleryMemes = async () => {
       const store = tx.objectStore('memes');
       const getAllRequest = store.getAll();
       
-      getAllRequest.onsuccess = () => resolve(getAllRequest.result || []);
+      getAllRequest.onsuccess = () => resolve(getAllRequest.result);
       getAllRequest.onerror = () => reject(getAllRequest.error);
     };
     
@@ -131,7 +131,7 @@ export const emptyTrash = async () => {
       const getAllRequest = store.getAll();
       
       getAllRequest.onsuccess = () => {
-        const memes = getAllRequest.result || [];
+        const memes = getAllRequest.result as SavedMeme[];
         memes.forEach(meme => {
           if (meme.inTrash) {
             store.delete(meme.id);

@@ -52,7 +52,7 @@ test.describe('Memegern E2E Tests', () => {
 
     // Click download (just verifying the button works, we intercept the download)
     const downloadPromise = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
-    await page.getByText('Download Meme').click();
+    await page.getByRole('button', { name: /Save Meme/i }).click();
 
     const download = await downloadPromise;
     if (download) {
@@ -108,7 +108,7 @@ test.describe('Memegern E2E Tests', () => {
 
     // Mock the download so it doesn't prompt
     const downloadPromise = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
-    await page.getByText('Download Meme').click();
+    await page.getByRole('button', { name: /Save Meme/i }).click();
     await downloadPromise;
 
     // Verify it appeared in the Offline Gallery
