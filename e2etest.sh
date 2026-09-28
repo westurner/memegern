@@ -4,13 +4,15 @@
 
 set -e
 
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
 # Default settings
 IMAGE_NAME="${IMAGE_NAME:-"localhost/e2e-test:latest"}"
 PODMAN="${PODMAN:-"podman"}"
 DO_BUILD="${DO_BUILD:-}"
 DO_IN_CONTAINER="${DO_IN_CONTAINER:-}"
 DO_INSTALL="${DO_INSTALL:-0}"
-PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-"${PWD}/.playwright-browsers"}"
+PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-"${SCRIPT_DIR}/.playwright-browsers"}"
 CONTAINER_USER="${CONTAINER_USER:-"appuser"}"
 
 usage() {
@@ -88,7 +90,7 @@ e2etest_main() {
     do_in_container="$DO_IN_CONTAINER"
     do_build="$DO_BUILD"
     do_install="$DO_INSTALL"
-    test_dir="$(dirname "$0")/e2e"
+    test_dir="${SCRIPT_DIR}/e2e"
     test_args=""
 
     # Argument parsing loop
@@ -223,8 +225,13 @@ run_on_host() {
     
     # Environment Setup
     if is_container; then
-        echo "## Detected container environment. Using system browsers."
-        unset PLAYWRIGHT_BROWSERS_PATH
+        if [ -d "${PLAYWRIGHT_BROWSERS_PATH}" ]; then
+            export PLAYWRIGHT_BROWSERS_PATH
+            echo "## Detected container environment. Using browsers from ${PLAYWRIGHT_BROWSERS_PATH}."
+        else
+            echo "## Detected container environment. Using system browsers."
+            unset PLAYWRIGHT_BROWSERS_PATH
+        fi
     else
         # On Host: Use local browser path
         export PLAYWRIGHT_BROWSERS_PATH
