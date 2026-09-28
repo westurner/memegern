@@ -37,7 +37,8 @@ RUN --mount=type=cache,target=/var/lib/apt/lists,id=apt-cache-lists \
 
 # Install Node.js and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y nodejs && \
+    npm install --global npm@11.20.0
 
 # Install Python (using pyenv-installer for flexibility, or direct apt-get)
 # For simplicity, let's use deadsnakes PPA for a specific Python version
@@ -68,16 +69,6 @@ RUN userdel -r ubuntu || true \
 
 
 
-# Set working directory
-WORKDIR /app
-
-# Copy project files
-#COPY . /app
-
-# Change ownership of /app to the non-root user
-RUN mkdir -p /app && chown -R $USERNAME:$USERNAME /app
-COPY --chown=$USERNAME:$USERNAME package.json /app/package.json
-
 # Switch to the non-root user
 USER $USERNAME
 
@@ -87,9 +78,8 @@ USER $USERNAME
 # RUN python -m ensurepip && python -m pip install -U pip uv && \
 #     uv sync --locked
 
-# Install Next.js dependencies
-WORKDIR /workspaces/srchq-nextjs
-RUN (set -x; ls -al /app /workspaces/**; cd /app && npm install)
+# Set the default directory to the mounted workspace.
+WORKDIR /workspaces/memegern
 
 # Expose ports (adjust as needed for your applications)
 # For Next.js dev server

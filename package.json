@@ -1,6 +1,7 @@
 {
   "name": "memegern",
   "version": "0.1.0",
+  "packageManager": "npm@11.20.0",
   "description": "memegern",
   "main": "jest.config.js",
   "scripts": {
@@ -40,7 +41,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260317.1",
+    "@cloudflare/workers-types": "^5.20260926.1",
     "@playwright/test": "^1.44.0",
     "@serwist/next": "^9.5.11",
     "@serwist/precaching": "^9.5.11",

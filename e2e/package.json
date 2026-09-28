@@ -13,5 +13,8 @@
     "e2e": "../e2etest.sh",
     "chrome-devtools": "npx chrome-devtools-mcp@latest",
     "firefox-devtools": "npx @mozilla/firefox-devtools-mcp@latest"
+  },
+  "allowScripts": {
+    "geckodriver@6.0.2": true
   }
 }
